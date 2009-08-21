@@ -31,9 +31,9 @@ application_user = node[:railsapps][:spree][:user]
   gem_package gem_dep
 end
 
-database_request node[:spree][:db][:database] do
-  username node[:spree][:db][:user]
-  password node[:spree][:db][:password]
+database_request node[:railsapps][:spree][:db][:database] do
+  username node[:railsapps][:spree][:db][:user]
+  password node[:railsapps][:spree][:db][:password]
 end
 
 
