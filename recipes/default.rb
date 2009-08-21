@@ -73,6 +73,7 @@ deploy node[:railsapps][:spree][:app][:path] do
   repo "git://github.com/railsdog/spree.git"
   branch "HEAD"
   user application_user
+  group node[:railsapps][:spree][:app][:group]
   enable_submodules true
   migrate true
   migration_command "rake db:migrate"
