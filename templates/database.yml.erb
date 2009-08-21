@@ -1,0 +1,9 @@
+defaults: &defaults
+  adapter: mysql
+  host: <%= @host %>
+  username: <%= @user %>
+  password: <%= @passwd %>
+
+production:
+  database: <%= @database %>
+  <<: *defaults
