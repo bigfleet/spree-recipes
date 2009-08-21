@@ -83,9 +83,9 @@ end
 
 web_app "spree" do
   docroot current_path
-  server_name node[:railsapps][:browsercms][:host]
-  log_dir node[:railsapps][:browsercms][:app][:log_dir]
-  max_pool_size node[:railsapps][:browsercms][:app][:pool_size]
+  server_name node[:railsapps][:spree][:host]
+  log_dir node[:railsapps][:spree][:app][:log_dir]
+  max_pool_size node[:railsapps][:spree][:app][:pool_size]
   rails_env "production"
   template "http.conf.erb"
 end
