@@ -27,14 +27,20 @@ include_recipe "database"
 
 application_user = node[:railsapps][:spree][:user]
 
-%w{browsercms mysql}.each do |gem_dep|
+%w{mysql}.each do |gem_dep|
   gem_package gem_dep
 end
 
+database_request node[:spree][:db][:database] do
+  username node[:spree][:db][:user]
+  password node[:spree][:db][:password]
+end
+
+
 ["#{node[:railsapps][:spree][:app][:log_dir]}",
  "#{node[:railsapps][:spree][:app][:path]}",
- "#{node[:railsapps][:spree][:app][:path]}/#{node[:railsapps][:spree][:app][:sitename]}",
- "#{node[:railsapps][:spree][:app][:path]}/#{node[:railsapps][:spree][:app][:sitename]}/config"].each do |dir_name|
+ "#{node[:railsapps][:spree][:app][:path]}/shared",
+ "#{node[:railsapps][:spree][:app][:path]}/shared/config"].each do |dir_name|
    directory dir_name do
      owner application_user
      group node[:railsapps][:spree][:app][:group]
@@ -42,10 +48,25 @@ end
    end
 end
 
-database_request node[:spree][:db][:database] do
-  username node[:spree][:db][:user]
-  password node[:spree][:db][:password]
+template "#{node[:railsapps][:spree][:app][:path]}/shared/config/database.yml" do
+  source "database.yml.erb"
+  owner    application_user
+  group    node[:railsapps][:spree][:app][:group]
+  variables :name => node[:railsapps][:spree][:db][:database], 
+            :passwd => node[:railsapps][:spree][:db][:password]
+  mode "0664"
 end
+
+
+r = gem_package "chef-deploy" do
+  source "http://gems.engineyard.com"
+  action :nothing
+end
+ 
+r.run_action(:install)
+ 
+Gem.clear_paths
+require "chef-deploy"
 
 deploy node[:railsapps][:spree][:app][:path] do
   repo "git://github.com/railsdog/spree.git"
@@ -60,7 +81,7 @@ deploy node[:railsapps][:spree][:app][:path] do
   action :deploy # or :rollback
 end
 
-web_app "public-site" do
+web_app "spree" do
   docroot current_path
   server_name node[:railsapps][:browsercms][:host]
   log_dir node[:railsapps][:browsercms][:app][:log_dir]
