@@ -26,6 +26,13 @@ include_recipe "apache2"
 include_recipe "passenger_apache2::mod_rails"
 include_recipe "database"
 
+#sudo gem install rails -v2.3.2
+
+gem_package "rails" do
+  action :install
+  version "2.3.2"
+end
+
 application_user = node[:railsapps][:spree][:app][:user]
 
 %w{mysql}.each do |gem_dep|
@@ -36,6 +43,13 @@ database_request node[:railsapps][:spree][:db][:database] do
   username node[:railsapps][:spree][:db][:user]
   password node[:railsapps][:spree][:db][:password]
 end
+
+database_nodes = search(:node, "database_location:*")
+Chef::Log.info "Inspecting #{database_nodes.size} nodes for database host information"
+hashes = database_nodes.collect{ |rslt| rslt[:database][:location] }
+results = hashes.uniq.reject{ |r| r.empty? }
+Chef::Log.info "Found #{results.inspect}"
+db_host = results.first
 
 
 ["#{node[:railsapps][:spree][:app][:log_dir]}",
@@ -53,8 +67,10 @@ template "#{node[:railsapps][:spree][:app][:path]}/shared/config/database.yml" d
   source "database.yml.erb"
   owner    application_user
   group    node[:railsapps][:spree][:app][:group]
-  variables :name => node[:railsapps][:spree][:db][:database], 
-            :passwd => node[:railsapps][:spree][:db][:password]
+  variables :database => node[:railsapps][:spree][:db][:database], 
+            :user => node[:railsapps][:spree][:db][:user],  
+            :passwd => node[:railsapps][:spree][:db][:password],
+            :host   => db_host || "localhost",            
   mode "0664"
 end
 
