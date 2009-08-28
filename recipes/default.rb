@@ -70,7 +70,7 @@ template "#{node[:railsapps][:spree][:app][:path]}/shared/config/database.yml" d
   variables :database => node[:railsapps][:spree][:db][:database], 
             :user => node[:railsapps][:spree][:db][:user],  
             :passwd => node[:railsapps][:spree][:db][:password],
-            :host   => db_host || "localhost",            
+            :host   => db_host || "localhost"  
   mode "0664"
 end
 
