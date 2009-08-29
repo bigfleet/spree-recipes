@@ -59,6 +59,7 @@ application_user = node[:railsapps][:spree][:app][:user]
   gem_package gem_dep
 end
 
+Chef::Log.info "Requesting database access to #{node[:railsapps][:spree][:db][:database]} for #{username node[:railsapps][:spree][:db][:user]}"
 database_request node[:railsapps][:spree][:db][:database] do
   username node[:railsapps][:spree][:db][:user]
   password node[:railsapps][:spree][:db][:password]
