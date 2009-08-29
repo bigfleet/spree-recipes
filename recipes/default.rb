@@ -33,6 +33,26 @@ gem_package "rails" do
   version "2.3.2"
 end
 
+# We'd like to install the rest of the gems that spree
+# needs, but not by re-enumerating them in this file.
+
+execute "clone-spree" do
+  command "git clone git://github.com/railsdog/spree.git"
+  cwd "/tmp"
+  not_if { File.exists?("/tmp/spree") }
+end
+
+execute "cp database.yml" do
+  command "cp config/database.yml.example config/database.yml"
+  cwd "/tmp/spree"
+  not_if { File.exists?("/tmp/spree/config/database.yml") }
+end
+
+execute "gem install" do
+  command "rake gems:install"
+  cwd "/tmp/spree"
+end
+
 application_user = node[:railsapps][:spree][:app][:user]
 
 %w{mysql}.each do |gem_dep|
